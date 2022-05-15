@@ -1,10 +1,12 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <clocale>
+#include <windows.h>
 
 using namespace std;
 
@@ -81,18 +83,18 @@ void Student::print()
 {
 	string d = " ";
 	cout << setw(3) << d << ". " << name << d << m_name << d << surname << endl;
-	cout << setw(5) << d << "Date of birth: " << b_day << "." << b_month << "." << b_year << endl;
-	cout << setw(5) << d << "Entrance: " << adm_year << endl;
-	cout << setw(5) << d << "Faculty: " << faculty << endl;
-	cout << setw(5) << d << "Department: " << departm << endl;
-	cout << setw(5) << d << "Group: " << group << endl;
-	cout << setw(5) << d << "Record book: " << record_book_n << endl;
-	cout << setw(5) << d << "Sex: " << (sex ? "М" : "Ж") << endl;
-	cout << setw(5) << d << "Grades: " << endl;
+	cout << setw(5) << d << "Дата рождения: " << b_day << "." << b_month << "." << b_year << endl;
+	cout << setw(5) << d << "Год поступления: " << adm_year << endl;
+	cout << setw(5) << d << "Факультет: " << faculty << endl;
+	cout << setw(5) << d << "Кафедра: " << departm << endl;
+	cout << setw(5) << d << "Группа: " << group << endl;
+	cout << setw(5) << d << "Номер зачетной книжки: " << record_book_n << endl;
+	cout << setw(5) << d << "Пол: " << (sex ? "М" : "Ж") << endl;
+	cout << setw(5) << d << "Оценки: " << endl;
 
 	for (auto& s : grades)
 	{
-		cout << setw(7) << " " << "Session " << s.first << endl;
+		cout << setw(7) << " " << "Сессия " << s.first + 1 << endl;
 
 		for (auto ss : s.second)
 			cout << setw(9) << " " << ss.first << " - " << ss.second << endl;
@@ -102,47 +104,47 @@ void Student::print()
 }
 
 void Student::setData() {
-	cout << "Name: "; cin >> name;
-	cout << "Middle name: "; cin >> m_name;
-	cout << "Surname: "; cin >> surname;
+	cout << "Имя: "; cin >> name;
+	cout << "Отчество: "; cin >> m_name;
+	cout << "Фамилия: "; cin >> surname;
 
 	do {
-		cout << "Birth day: "; 	cin >> b_day;
+		cout << "День рождения: "; 	cin >> b_day;
 	} while (b_day <= 0 || b_day > 31);
 
 	do {
-		cout << "Birth month: "; cin >> b_month;
+		cout << "Месяц рождения: "; cin >> b_month;
 	} while (b_month <= 0 || b_month > 12);
 
 	do {
-		cout << "Birth year: "; cin >> b_year;
+		cout << "Год рождения: "; cin >> b_year;
 	} while (b_year <= 1980 || b_year > 2005);
 
 	do {
-		cout << "Entrance year: "; cin >> adm_year;
+		cout << "Год поступления: "; cin >> adm_year;
 	} while (adm_year <= 1980 || adm_year > 2022);
 
-	cout << "Faculty: "; cin >> faculty;
-	cout << "Department: "; cin >> departm;
-	cout << "Group: "; cin >> group;
-	cout << "Record book: "; cin >> record_book_n;
-	cout << "Sex: "; cin >> sex;
+	cout << "Факультет: "; cin >> faculty;
+	cout << "Кафедра: "; cin >> departm;
+	cout << "Группа: "; cin >> group;
+	cout << "Номер зачетной книжки: "; cin >> record_book_n;
+	cout << "Пол: "; cin >> sex;
 
 	int s_count;
 	do
 	{
-		cout << "Session count: "; cin >> s_count;
+		cout << "Количество сессий: "; cin >> s_count;
 	} while (s_count <= 0 || s_count > 9);
 
 	int ss_count;
 	int grade;
 	std::string sbj;
 	for (int i = 0; i < s_count; ++i) {
-		cout << "Subjects count: "; cin >> ss_count;
+		cout << "Количество предметов: "; cin >> ss_count;
 		for (int j = 0; j < ss_count; ++j) {
-			cout << "Subject: "; cin >> sbj;
+			cout << "Предмет: "; cin >> sbj;
 			do {
-				cout << "Grade: "; cin >> grade;
+				cout << "Оценка: "; cin >> grade;
 			} while (grade < 2 || grade > 5);
 			grades[i][sbj] = grade;
 		}
@@ -208,15 +210,15 @@ void Group::addItem()
 void Group::modifyItem()
 {
 	int i;
-	cout << "Item to modify: "; cin >> i;
+	cout << "Номер для редактирования: "; cin >> i;
 	if (!i) {
-		cout << "Operation canceled\n";
+		cout << "Операция отменена\n";
 		return;
 	}
 
 	if (i < 0 || i > _data.size())
 	{
-		cout << "Incorrect number\n";
+		cout << "Неправильный номер\n";
 		return;
 	}
 
@@ -226,14 +228,14 @@ void Group::modifyItem()
 void Group::removeItem()
 {
 	int i;
-	cout << "Item to modify:  "; cin >> i;
+	cout << "Номер для удаления: "; cin >> i;
 	if (!i) {
-		std::cout << "Operation canceled\n";
+		std::cout << "Операция отменена\n";
 		return;
 	}
 	if (i <= 0 || i > _data.size())
 	{
-		cout << "Icorrect number\n";
+		cout << "Неправильный номер\n";
 		return;
 	}
 
@@ -247,7 +249,7 @@ void Group::save()
 
 	if (!out.is_open())
 	{
-		cout << "Can't save file!" << endl;
+		cout << "Невозможно открыть файл" << endl;
 		return;
 	}
 
@@ -262,7 +264,7 @@ void Group::load()
 {
 	ifstream in(fileName);
 	if (!in.is_open()) {
-		std::cout << "File isn't exist yet\n";
+		std::cout << "Файл еще не создан, нечего загрузить\n";
 	}
 
 	std::string line;
@@ -280,7 +282,7 @@ void Group::load()
 
 void Group::printGoodLearners()
 {
-	cout << "Group1: " << endl;
+	cout << "Первая группа: " << endl;
 
 	int i = 0;
 
@@ -309,7 +311,7 @@ void Group::printGoodLearners()
 
 void Group::printNotSoGoodLearners()
 {
-	cout << "Group2: " << endl;
+	cout << "Вторая группа: " << endl;
 
 	int i = 0;
 
@@ -337,16 +339,20 @@ void Group::printNotSoGoodLearners()
 }
 
 void menu() {
-	cout << "1. Add item\n";
-	cout << "2. Modify item\n";
-	cout << "3. Remove item\n";
-	cout << "4. Print all\n";
-	cout << "5. Print task\n";
-	cout << "0. Exit\n>";
+	cout << "1. Добавить студента\n";
+	cout << "2. Изменить студента\n";
+	cout << "3. Удалить студента\n";
+	cout << "4. Распечатать список студентов\n";
+	cout << "5. Распечатать список согласно фильтру\n";
+	cout << "0. Выход\n>";
 }
 
 int main()
 {
+	setlocale(LC_ALL, "Russian");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+
 	using GroupPtr = std::shared_ptr<Group>;
 	GroupPtr gr(new Group());
 	int answer;
@@ -371,7 +377,7 @@ int main()
 			break;
 
 		default:
-			std::cout << "Unknown command\n";
+			std::cout << "Неизвестная команда\n";
 		}
 
 		system("pause");
