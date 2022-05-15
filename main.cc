@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <clocale>
 #include <windows.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,6 +23,10 @@ struct Student {
 public:
 	void setData();
 	void print();
+
+	bool goodLearner() const;
+	float avgGrade() const;
+	bool operator < (const Student& st);
 
 public:
 	string name;
@@ -77,6 +82,42 @@ std::istream& operator >>(std::istream& in, Student& st)
 
 	}
 	return in;
+}
+
+bool Student::operator<(const Student& st) {
+	return avgGrade() < st.avgGrade();
+}
+
+bool Student::goodLearner() const{
+	int cnt_good = 0;
+	int cnt_bad = 0;
+
+	for (auto& session : grades)
+	{
+		for (auto& subject : session.second)
+		{
+			if (subject.second > 3)
+				++cnt_good;
+			else
+				++cnt_bad;
+		}
+	}
+
+	return cnt_good >= cnt_bad;
+}
+
+float Student::avgGrade() const {
+	int count = 0;
+	float res = 0;
+	for (auto& session : grades) {
+		for (auto& subject : session.second)
+		{
+			count++;
+			res += subject.second;
+		}
+	}
+
+	return res / count;
 }
 
 void Student::print()
@@ -177,8 +218,7 @@ public:
 	void modifyItem() override;
 	void removeItem() override;
 
-	void printGoodLearners();
-	void printNotSoGoodLearners();
+	void printCustom();
 
 private:
 	void load() override;
@@ -244,9 +284,7 @@ void Group::removeItem()
 
 void Group::save()
 {
-	ofstream out;
-	out.open(fileName, ios_base::out | ios_base::binary);
-
+	ofstream out(fileName);
 	if (!out.is_open())
 	{
 		cout << "Невозможно открыть файл" << endl;
@@ -280,62 +318,54 @@ void Group::load()
 	in.close();
 }
 
-void Group::printGoodLearners()
+void Group::printCustom()
 {
-	cout << "Первая группа: " << endl;
+	int yearMin, yearMax;
+	std::cout << "Min birth year: "; std::cin >> yearMin;
+	std::cout << "Max birth year: "; std::cin >> yearMax;
 
-	int i = 0;
+	std::vector<Student> filtered;
+	std::copy_if(_data.begin(), _data.end(), std::back_inserter(filtered),
+		[&](Student& st) { 
+			return st.b_year >= yearMin && st.b_year <= yearMax; });
 
-	for (auto& s : _data)
-	{
-		int cnt_good = 0;
-		int cnt_bad = 0;
+	auto it = std::partition(filtered.begin(), filtered.end(), [](Student& st) {return st.goodLearner(); });
+	auto sz = std::distance(filtered.begin(), it);
+	auto sz_n = filtered.size();
+	std::sort(filtered.begin(), it);
+	std::sort(it, filtered.end());
 
-		for (auto& session : s.grades)
-		{
-			for (auto& subject : session.second)
-			{
-				if (subject.second > 3)
-					++cnt_good;
-				else
-					++cnt_bad;
-			}
+	std::cout << "Первая группа: " << std::endl;
+	if (sz < 4) {
+		for (int i = 0; i < sz; ++i) {
+			filtered[i].print();
 		}
-
-		if (cnt_bad > cnt_good)
-			continue;
-
-		s.print();
 	}
-}
+	else {
+		std::cout << "Мене успевающие: ";
+		filtered[0].print();
+		filtered[1].print();
+		std::cout << "Более успевающие:";
+		filtered[sz - 1].print();
+		filtered[sz - 2].print();
+	}
 
-void Group::printNotSoGoodLearners()
-{
-	cout << "Вторая группа: " << endl;
-
-	int i = 0;
-
-	for (auto& s : _data)
-	{
-		int cnt_good = 0;
-		int cnt_bad = 0;
-
-		for (auto& session : s.grades)
-		{
-			for (auto& subject : session.second)
-			{
-				if (subject.second > 3)
-					++cnt_good;
-				else
-					++cnt_bad;
-			}
+	std::cout << "Вторая группа: " << std::endl;
+	if (sz < 4) {
+		for (int i = sz; i < sz_n; ++i) {
+			filtered[i].print();
 		}
-
-		if (cnt_bad <= cnt_good)
-			continue;
-
-		s.print();
 	}
+	else {
+		std::cout << "Мене успевающие: ";
+		filtered[sz].print();
+		filtered[sz].print();
+		std::cout << "Болеее успевающие:";
+		filtered[sz_n - 1].print();
+		filtered[sz_n - 2].print();
+	}
+
+
 }
 
 void menu() {
@@ -369,8 +399,7 @@ int main()
 		case 3:	gr->removeItem(); break;
 		case 4: gr->print();      break;
 		case 5:
-			gr->printGoodLearners();
-			gr->printNotSoGoodLearners();
+			gr->printCustom();
 			break;
 
 		case 0:
