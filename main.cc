@@ -126,7 +126,7 @@ void Student::setData() {
 	cout << "Department: "; cin >> departm;
 	cout << "Group: "; cin >> group;
 	cout << "Record book: "; cin >> record_book_n;
-	cout << "Пол (М - 1, Ж - 0): "; cin >> sex;
+	cout << "Sex: "; cin >> sex;
 
 	int s_count;
 	do
@@ -309,7 +309,7 @@ void Group::printGoodLearners()
 
 void Group::printNotSoGoodLearners()
 {
-	cout << "Group1: " << endl;
+	cout << "Group2: " << endl;
 
 	int i = 0;
 
